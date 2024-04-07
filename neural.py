@@ -65,15 +65,43 @@ class neuralNetwork:
         
 
 def main():
-    inputNodes = 3
-    hiddenNodes = 3
-    outputNodes = 3
+    inputNodes = 784 # 28x28 - size of input image
+    hiddenNodes = 100 # arbitrary chosen number based on fact that we have 10 output nodes
+    outputNodes = 10
     learningRate = 0.3
 
     n = neuralNetwork(inputNodes, hiddenNodes, outputNodes, learningRate)
     #print(n.weightsInputToHidden)
-    result = n.query([1.0, 0.5, -1.5])
-    print(result)
+    #result = n.query([1.0, 0.5, -1.5])
+
+    training_data_file = open("mnist_train_100.csv", "r")
+    training_data_list = training_data_file.readlines()
+    training_data_file.close()
+
+    #training the network
+    for record in training_data_list:
+        #split by commas
+        all_values = record.split(',')
+        
+        #rescale inputs (1: - because element under index zero is actual number not the input data)
+        inputs = (numpy.asfarray(all_values[1:]) / 255.0 * 0.99) + 0.01
+        
+        #target output values
+        targets = numpy.zeros(outputNodes) + 0.01
+        targets[int(all_values[0])] = 0.99
+
+        n.train(inputs, targets)
+
+    print(n.weightsHiddenToOutput)
+
+
+    for record in training_data_list:
+        #split by commas
+        all_values = record.split(',')
+
+        result = n.query((numpy.asfarray(all_values[1:]) /255.0 * 0.99) + 0.01)
+        print(result)
+        break
 
 
 
